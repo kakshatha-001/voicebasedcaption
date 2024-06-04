@@ -53,7 +53,7 @@ recordBtn.addEventListener('click', () => {
 
 // Send Image to Colab
 function sendImageToColab(imageData) {
-    fetch('https://your-colab-notebook-url/image', {
+    fetch('https://colab.research.google.com/drive/1ta1M6AqSZrg38NNDjaPNefwgG7BlIajt?usp=sharing/image', {
         method: 'POST',
         body: JSON.stringify({ image: imageData }),
         headers: { 'Content-Type': 'application/json' }
