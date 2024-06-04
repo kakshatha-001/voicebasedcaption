@@ -51,29 +51,13 @@ recordBtn.addEventListener('click', () => {
         });
 });
 
-// Send Image to Colab
-function sendImageToColab(imageData) {
-    fetch('https://colab.research.google.com/drive/1ta1M6AqSZrg38NNDjaPNefwgG7BlIajt?usp=sharing/image', {
-        method: 'POST',
-        body: JSON.stringify({ image: imageData }),
-        headers: { 'Content-Type': 'application/json' }
-    })
-    .then(response => response.json())
-    .then(data => {
-        document.getElementById('caption').innerText = data.caption;
-        speakCaption(data.caption);
-    })
-    .catch(err => {
-        console.error('Error sending image to Colab: ', err);
-    });
-}
-
-// Send Audio to Colab
-function sendAudioToColab(audioBlob) {
+// Send Image and Audio to Colab and Generate Caption
+function sendImageAndAudioToColab(imageData, audioBlob) {
     const formData = new FormData();
+    formData.append('image', imageData);
     formData.append('audio', audioBlob);
 
-    fetch('https://colab.research.google.com/drive/1ta1M6AqSZrg38NNDjaPNefwgG7BlIajt?usp=sharing/audio', {
+    fetch('https://colab.research.google.com/drive/1ta1M6AqSZrg38NNDjaPNefwgG7BlIajt?usp=sharing/image_audio', {
         method: 'POST',
         body: formData
     })
@@ -83,7 +67,7 @@ function sendAudioToColab(audioBlob) {
         speakCaption(data.caption);
     })
     .catch(err => {
-        console.error('Error sending audio to Colab: ', err);
+        console.error('Error sending image and audio to Colab: ', err);
     });
 }
 
@@ -92,3 +76,20 @@ function speakCaption(caption) {
     const utterance = new SpeechSynthesisUtterance(caption);
     window.speechSynthesis.speak(utterance);
 }
+
+// Set up Speech Recognition
+const speechRecognition = new webkitSpeechRecognition();
+speechRecognition.lang = 'en-US';
+speechRecognition.maxResults = 10;
+
+// Start Speech Recognition
+speechRecognition.addEventListener('result', event => {
+    const transcript = event.results[0][0].transcript;
+    document.getElementById('caption').innerText = transcript;
+    sendImageAndAudioToColab(imageData, audioBlob);
+});
+
+// Start Speech Recognition when user clicks the "Speak" button
+document.getElementById('speak-btn').addEventListener('click', () => {
+    speechRecognition.start();
+});
