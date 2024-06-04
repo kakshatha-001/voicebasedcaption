@@ -24,6 +24,37 @@
             <audio id="audio" controls></audio>
         </div>
     </div>
-    <script src="script.js"></script>
+    <script>
+        // Request access to the camera and microphone
+        navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true
+        })
+        .then(function(stream) {
+            // Set the video source to the camera stream
+            const videoElement = document.getElementById('video');
+            videoElement.srcObject = stream;
+            
+            // Add event listeners for the capture and record buttons
+            document.getElementById('capture').addEventListener('click', capturePhoto);
+            document.getElementById('record').addEventListener('click', recordVoice);
+        })
+        .catch(function(error) {
+            console.error('Error accessing media devices:', error);
+        });
+
+        function capturePhoto() {
+            // Capture the photo and display it in the canvas
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            context.drawImage(document.getElementById('video'), 0, 0, canvas.width, canvas.height);
+            // Add your image caption generation logic here
+        }
+
+        function recordVoice() {
+            // Record the voice and play it back
+            // Add your voice recording and playback logic here
+        }
+    </script>
 </body>
 </html>
