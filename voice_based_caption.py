@@ -5,8 +5,6 @@ from transformers import VisionEncoderDecoderModel, ViTFeatureExtractor, AutoTok
 from PIL import Image
 import numpy as np
 from flask import Flask, request, jsonify
-from gtts import gTTS
-from IPython.display import Audio, display
 
 app = Flask(__name__)
 
@@ -57,7 +55,7 @@ def preprocess_image(image_path):
     pil_image = Image.fromarray(cv2.cvtColor(enhanced_image, cv2.COLOR_BGR2RGB))
     return pil_image
 
-def predict_caption(image_paths):
+def predict_step(image_paths):
     images = []
     for image_path in image_paths:
         preprocessed_image = preprocess_image(image_path)
@@ -80,28 +78,23 @@ def predict_caption(image_paths):
     preds = [pred.strip() for pred in preds]
     return preds
 
-@app.route('/process', methods=['POST'])
-def process_image():
-    if 'data' not in request.files:
-        return jsonify({'error': 'No file part'})
+@app.route('/upload_image', methods=['POST'])
+def upload_image():
+    file = request.files['file']
+    file_path = 'image.jpg'
+    file.save(file_path)
 
-    file = request.files['data']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'})
+    predictions = predict_step([file_path])
+    caption = predictions[0] if predictions else "No caption generated."
+    os.remove(file_path)
 
-    file.save('temp_image.jpg')  # Save the uploaded image
+    return jsonify({'caption': caption})
 
-    # Process the uploaded image and get caption
-    image_paths = ['temp_image.jpg']
-    predictions = predict_caption(image_paths)
-
-    # Convert caption to speech
-    caption = predictions[0]
-    tts = gTTS(caption, lang='en')
-    tts.save('caption.mp3')
-    audio_url = '/static/caption.mp3'
-
-    return jsonify({'caption': caption, 'audio_url': audio_url})
+@app.route('/upload_audio', methods=['POST'])
+def upload_audio():
+    # Handle audio input for caption generation if needed
+    # Here, we just return a placeholder text as an example
+    return jsonify({'caption': "Voice input received, but functionality not implemented."})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=5000, debug=True)
