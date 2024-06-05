@@ -1,95 +1,88 @@
-// Capture Image from Camera
 const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
 const captureBtn = document.getElementById('capture-btn');
-const canvas = document.createElement('canvas');
+const recordBtn = document.getElementById('record-btn');
+const status = document.getElementById('status');
+const captionContainer = document.getElementById('caption-container');
+const captionText = document.getElementById('caption');
 
 navigator.mediaDevices.getUserMedia({ video: true })
     .then(stream => {
         video.srcObject = stream;
     })
-    .catch(err => {
-        console.error('Error accessing camera: ', err);
+    .catch(error => {
+        console.error('Error accessing the camera', error);
     });
 
 captureBtn.addEventListener('click', () => {
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-    const imageData = canvas.toDataURL('image/png');
-    sendImageToColab(imageData);
+    const context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(blob => {
+        uploadImage(blob);
+    }, 'image/jpeg');
 });
-
-// Record Voice from Microphone
-const recordBtn = document.getElementById('record-btn');
-const audio = document.getElementById('audio');
-let mediaRecorder;
-let audioChunks = [];
 
 recordBtn.addEventListener('click', () => {
-    navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-            mediaRecorder = new MediaRecorder(stream);
-            mediaRecorder.start();
-
-            mediaRecorder.ondataavailable = event => {
-                audioChunks.push(event.data);
-            };
-
-            mediaRecorder.onstop = () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                audio.src = URL.createObjectURL(audioBlob);
-                sendAudioToColab(audioBlob);
-                audioChunks = [];
-            };
-
-            setTimeout(() => {
-                mediaRecorder.stop();
-            }, 5000); // Record for 5 seconds
-        })
-        .catch(err => {
-            console.error('Error accessing microphone: ', err);
-        });
+    recordAudio();
 });
 
-// Send Image and Audio to Colab and Generate Caption
-function sendImageAndAudioToColab(imageData, audioBlob) {
+function uploadImage(blob) {
     const formData = new FormData();
-    formData.append('image', imageData);
-    formData.append('audio', audioBlob);
+    formData.append('file', blob, 'image.jpg');
 
-    fetch('https://colab.research.google.com/drive/1ta1M6AqSZrg38NNDjaPNefwgG7BlIajt?usp=sharing/image_audio', {
+    fetch('https://colab.research.google.com/drive/1ta1M6AqSZrg38NNDjaPNefwgG7BlIajt?usp=sharing/upload_image', {
         method: 'POST',
         body: formData
     })
     .then(response => response.json())
     .then(data => {
-        document.getElementById('caption').innerText = data.caption;
-        speakCaption(data.caption);
+        captionText.innerText = data.caption;
+        status.innerText = "Caption generated successfully.";
     })
-    .catch(err => {
-        console.error('Error sending image and audio to Colab: ', err);
+    .catch(error => {
+        console.error('Error uploading image', error);
+        status.innerText = "Failed to generate caption.";
     });
 }
 
-// Speak Caption
-function speakCaption(caption) {
-    const utterance = new SpeechSynthesisUtterance(caption);
-    window.speechSynthesis.speak(utterance);
+function recordAudio() {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+            const mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.start();
+            status.innerText = "Recording...";
+
+            mediaRecorder.ondataavailable = event => {
+                const audioBlob = event.data;
+                uploadAudio(audioBlob);
+            };
+
+            setTimeout(() => {
+                mediaRecorder.stop();
+                status.innerText = "Recording stopped.";
+            }, 5000); // Record for 5 seconds
+        })
+        .catch(error => {
+            console.error('Error accessing the microphone', error);
+            status.innerText = "Failed to access microphone.";
+        });
 }
 
-// Set up Speech Recognition
-const speechRecognition = new webkitSpeechRecognition();
-speechRecognition.lang = 'en-US';
-speechRecognition.maxResults = 10;
+function uploadAudio(blob) {
+    const formData = new FormData();
+    formData.append('file', blob, 'audio.wav');
 
-// Start Speech Recognition
-speechRecognition.addEventListener('result', event => {
-    const transcript = event.results[0][0].transcript;
-    document.getElementById('caption').innerText = transcript;
-    sendImageAndAudioToColab(imageData, audioBlob);
-});
-
-// Start Speech Recognition when user clicks the "Speak" button
-document.getElementById('speak-btn').addEventListener('click', () => {
-    speechRecognition.start();
-});
+    fetch('https://colab.research.google.com/drive/1ta1M6AqSZrg38NNDjaPNefwgG7BlIajt?usp=sharing/upload_audio', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        captionText.innerText = data.caption;
+        status.innerText = "Caption generated successfully.";
+    })
+    .catch(error => {
+        console.error('Error uploading audio', error);
+        status.innerText = "Failed to generate caption.";
+    });
+}
