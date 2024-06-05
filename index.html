@@ -3,58 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Based Image Caption Generator</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Voice-Based Image Caption Generator</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Voice Based Image Caption Generator</h1>
-        <div class="camera">
-            <video id="video" width="640" height="480" autoplay></video>
-            <button id="capture">Capture Photo</button>
-        </div>
-        <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
-        <div class="microphone">
-            <button id="record">Record Voice</button>
-            <p id="status">Press the button to start recording...</p>
-        </div>
-        <div class="output">
+        <h1>Image Caption Generator</h1>
+        <video id="video" width="320" height="240" autoplay></video>
+        <button id="capture-btn">Capture Image</button>
+        <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+        <button id="record-btn">Record Voice</button>
+        <p id="status"></p>
+        <div id="caption-container">
             <h2>Caption:</h2>
             <p id="caption"></p>
-            <audio id="audio" controls></audio>
         </div>
     </div>
-    <script>
-        // Request access to the camera and microphone
-        navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: true
-        })
-        .then(function(stream) {
-            // Set the video source to the camera stream
-            const videoElement = document.getElementById('video');
-            videoElement.srcObject = stream;
-            
-            // Add event listeners for the capture and record buttons
-            document.getElementById('capture').addEventListener('click', capturePhoto);
-            document.getElementById('record').addEventListener('click', recordVoice);
-        })
-        .catch(function(error) {
-            console.error('Error accessing media devices:', error);
-        });
-
-        function capturePhoto() {
-            // Capture the photo and display it in the canvas
-            const canvas = document.getElementById('canvas');
-            const context = canvas.getContext('2d');
-            context.drawImage(document.getElementById('video'), 0, 0, canvas.width, canvas.height);
-            // Add your image caption generation logic here
-        }
-
-        function recordVoice() {
-            // Record the voice and play it back
-            // Add your voice recording and playback logic here
-        }
-    </script>
+    <script src="scripts.js"></script>
 </body>
 </html>
