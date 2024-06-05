@@ -5,34 +5,24 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
+    background-color: #f0f0f0;
 }
 
 .container {
     text-align: center;
-}
-
-.camera, .microphone {
-    margin-bottom: 20px;
-}
-
-#video {
-    border: 2px solid #000;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 button {
+    margin-top: 10px;
     padding: 10px 20px;
-    margin: 10px;
-    background-color: #007BFF;
-    color: #fff;
-    border: none;
+    font-size: 16px;
     cursor: pointer;
-    border-radius: 5px;
 }
 
-button:hover {
-    background-color: #0056b3;
-}
-
-.output {
+#caption-container {
     margin-top: 20px;
 }
