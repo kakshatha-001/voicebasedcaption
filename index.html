@@ -4,63 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Caption Generator</title>
-    <style>
-        #imagePreview {
-            max-width: 300px;
-            max-height: 300px;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <h1>Image Caption Generator</h1>
-    <input type="file" accept="image/*" id="uploadInput">
-    <button onclick="captureImage()">Capture Image</button>
-    <br>
-    <img id="imagePreview" src="#" alt="Preview">
-    <br>
-    <button onclick="generateCaption()">Generate Caption</button>
-    <br>
-    <p id="caption"></p>
+    <div id="imageContainer">
+        <input type="file" accept="image/*" id="imageInput" onchange="previewImage(event)">
+        <video id="videoFeed" width="300" height="200" autoplay></video>
+        <button onclick="captureImage()">Capture Image</button>
+        <canvas id="canvas" width="300" height="200"></canvas>
+    </div>
+    <div id="captionDisplay">
+        <p id="caption"></p>
+    </div>
+    <audio id="audioPlayer" controls></audio>
 
-    <script>
-        function captureImage() {
-            const video = document.createElement('video');
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(stream => {
-                    video.srcObject = stream;
-                    video.onloadedmetadata = () => {
-                        canvas.width = video.videoWidth;
-                        canvas.height = video.videoHeight;
-                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                        const imgURL = canvas.toDataURL('image/jpeg');
-                        document.getElementById('imagePreview').src = imgURL;
-                        video.srcObject.getTracks().forEach(track => track.stop());
-                    }
-                })
-                .catch(err => console.error('Error accessing camera: ', err));
-        }
-
-        function generateCaption() {
-            const fileInput = document.getElementById('uploadInput');
-            const file = fileInput.files[0];
-            const formData = new FormData();
-            formData.append('image', file);
-
-            fetch('/generate-caption', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('caption').innerText = data.caption;
-                const audio = new Audio('data:audio/mp3;base64,' + data.audio);
-                audio.play();
-            })
-            .catch(error => console.error('Error:', error));
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
