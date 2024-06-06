@@ -3,22 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice-Based Image Caption Generator</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Image Captioning</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Image Caption Generator</h1>
-        <video id="video" width="320" height="240" autoplay></video>
-        <button id="capture-btn">Capture Image</button>
-        <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
-        <button id="record-btn">Record Voice</button>
-        <p id="status"></p>
-        <div id="caption-container">
-            <h2>Caption:</h2>
-            <p id="caption"></p>
-        </div>
-    </div>
-    <script src="scripts.js"></script>
+    <input type="file" accept="image/*" id="imageInput">
+    <button onclick="processImage()">Caption Image</button>
+    <div id="output"></div>
+
+    <script src="script.js"></script>
 </body>
 </html>
