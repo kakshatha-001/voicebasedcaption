@@ -1,24 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Caption Generator</title>
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Captioner</title>
 </head>
 <body>
-    <h1>Image Caption Generator</h1>
-    <div id="imageContainer">
-        <input type="file" accept="image/*" id="imageInput" onchange="previewImage(event)">
-        <video id="videoFeed" width="300" height="200" autoplay></video>
-        <button onclick="captureImage()">Capture Image</button>
-        <canvas id="canvas" width="300" height="200"></canvas>
-    </div>
-    <div id="captionDisplay">
-        <p id="caption"></p>
-    </div>
-    <audio id="audioPlayer" controls></audio>
+  <h1>Image Captioner</h1>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" accept="image/*" id="imageInput">
+    <button type="submit">Generate Caption</button>
+  </form>
+  <div id="output"></div>
+  <audio id="audio" controls style="display: none;"></audio>
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var fileInput = document.getElementById('imageInput');
+      var file = fileInput.files[0];
 
-    <script src="script.js"></script>
+      var formData = new FormData();
+      formData.append('image', file);
+
+      fetch('/generate_caption', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('output').innerText = data.caption;
+        document.getElementById('audio').src = '/static/caption.mp3';
+        document.getElementById('audio').style.display = 'block';
+      })
+      .catch(error => console.error('Error:', error));
+    });
+  </script>
 </body>
 </html>
