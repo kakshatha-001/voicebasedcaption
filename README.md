@@ -9,5 +9,6 @@ This project creates a web application for image captioning using a pre-trained 
    ```bash
    git clone https://github.com/yourusername/image_captioning_website.git
    cd image_captioning_website
+```bash
 pip install -r requirements.txt
 python app.py
