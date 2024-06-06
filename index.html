@@ -4,18 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Captioning</title>
-    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Image Captioning</h1>
-    <input type="file" accept="image/*" id="imageInput">
-    <button onclick="uploadImage()">Upload Image</button>
-    <div id="imageContainer"></div>
-    <p id="caption"></p>
-    <audio controls id="audioCaption">
-        <source src="" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
-    <script src="script.js"></script>
+    <h1>Upload an Image to Get a Caption</h1>
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="submit" value="Upload">
+    </form>
+
+    {% if image_url %}
+        <h2>Caption:</h2>
+        <p>{{ caption }}</p>
+        <img src="{{ image_url }}" alt="Uploaded Image">
+        <audio controls>
+            <source src="{{ audio_url }}" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    {% endif %}
 </body>
 </html>
