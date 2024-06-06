@@ -4,3 +4,4 @@ pillow
 opencv-python-headless
 gtts
 Flask
+pip freeze > requirements.txt
