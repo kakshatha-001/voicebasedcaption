@@ -1,7 +1,6 @@
+flask
 torch
 transformers
 pillow
-opencv-python-headless
+opencv-python
 gtts
-Flask
-pip freeze > requirements.txt
