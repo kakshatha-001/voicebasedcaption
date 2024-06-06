@@ -6,10 +6,30 @@
     <title>Image Captioning</title>
 </head>
 <body>
-    <input type="file" accept="image/*" id="imageInput">
-    <button onclick="processImage()">Caption Image</button>
-    <div id="output"></div>
+    <h1>Image Captioning</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" id="image-upload" accept="image/*" required>
+        <button type="submit">Upload Image</button>
+    </form>
+    <div id="caption-container"></div>
 
-    <script src="script.js"></script>
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData();
+            var file = document.getElementById('image-upload').files[0];
+            formData.append('image', file);
+
+            fetch('/caption', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('caption-container').innerText = 'Caption: ' + data.caption;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
 </body>
 </html>
