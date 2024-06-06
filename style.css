@@ -1,24 +1,35 @@
-.App {
-  text-align: center;
-  padding: 20px;
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
 }
 
-input {
-  margin: 10px;
+h1 {
+    text-align: center;
 }
 
-button {
-  padding: 10px 20px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  cursor: pointer;
+#imageContainer {
+    text-align: center;
+    margin-bottom: 20px;
 }
 
-button:hover {
-  background-color: #218838;
+#imageInput {
+    display: none;
 }
 
-audio {
-  margin-top: 20px;
+#videoFeed {
+    display: none;
+}
+
+#canvas {
+    display: none;
+}
+
+#captionDisplay {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#audioPlayer {
+    display: none;
 }
