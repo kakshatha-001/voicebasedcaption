@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Caption Result</title>
+  </head>
+  <body>
+    <h1>Caption Result</h1>
+    <img src="{{ url_for('uploaded_file', filename=image_path.split('/')[-1]) }}" alt="Uploaded Image">
+    <p>{{ caption }}</p>
+    <audio controls>
+      <source src="{{ url_for('get_audio') }}" type="audio/mp3">
+      Your browser does not support the audio element.
+    </audio>
+    <br>
+    <a href="{{ url_for('index') }}">Upload another image</a>
+  </body>
+</html>
