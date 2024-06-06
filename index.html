@@ -1,39 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Image Captioner</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Captioning</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Image Captioner</h1>
-  <form id="uploadForm" enctype="multipart/form-data">
+    <h1>Image Captioning</h1>
     <input type="file" accept="image/*" id="imageInput">
-    <button type="submit">Generate Caption</button>
-  </form>
-  <div id="output"></div>
-  <audio id="audio" controls style="display: none;"></audio>
-  <script>
-    document.getElementById('uploadForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      var fileInput = document.getElementById('imageInput');
-      var file = fileInput.files[0];
-
-      var formData = new FormData();
-      formData.append('image', file);
-
-      fetch('/generate_caption', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById('output').innerText = data.caption;
-        document.getElementById('audio').src = '/static/caption.mp3';
-        document.getElementById('audio').style.display = 'block';
-      })
-      .catch(error => console.error('Error:', error));
-    });
-  </script>
+    <button onclick="uploadImage()">Upload Image</button>
+    <div id="imageContainer"></div>
+    <p id="caption"></p>
+    <audio controls id="audioCaption">
+        <source src="" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <script src="script.js"></script>
 </body>
 </html>
