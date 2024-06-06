@@ -5,82 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Caption Generator</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f5f5f5;
-        }
-        .container {
-            text-align: center;
-        }
-        #image-preview {
-            max-width: 400px;
-            margin-bottom: 20px;
-        }
-        #caption {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        #generate-btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        #output-caption {
-            font-size: 18px;
-            margin-top: 20px;
+        #imagePreview {
+            max-width: 300px;
+            max-height: 300px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Image Caption Generator</h1>
-        <input type="file" accept="image/*" id="image-input">
-        <div id="image-preview"></div>
-        <textarea id="caption" placeholder="Enter caption here"></textarea>
-        <button id="generate-btn">Generate Caption</button>
-        <div id="output-caption"></div>
-    </div>
+    <h1>Image Caption Generator</h1>
+    <input type="file" accept="image/*" id="uploadInput">
+    <button onclick="captureImage()">Capture Image</button>
+    <br>
+    <img id="imagePreview" src="#" alt="Preview">
+    <br>
+    <button onclick="generateCaption()">Generate Caption</button>
+    <br>
+    <p id="caption"></p>
 
     <script>
-        const imageInput = document.getElementById('image-input');
-        const imagePreview = document.getElementById('image-preview');
-        const captionInput = document.getElementById('caption');
-        const generateBtn = document.getElementById('generate-btn');
-        const outputCaption = document.getElementById('output-caption');
+        function captureImage() {
+            const video = document.createElement('video');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
 
-        imageInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function() {
-                    imagePreview.innerHTML = `<img src="${reader.result}" alt="Image Preview" style="max-width: 100%;">`;
-                }
-                reader.readAsDataURL(file);
-            }
-        });
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    video.srcObject = stream;
+                    video.onloadedmetadata = () => {
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        const imgURL = canvas.toDataURL('image/jpeg');
+                        document.getElementById('imagePreview').src = imgURL;
+                        video.srcObject.getTracks().forEach(track => track.stop());
+                    }
+                })
+                .catch(err => console.error('Error accessing camera: ', err));
+        }
 
-        generateBtn.addEventListener('click', function() {
-            const caption = captionInput.value.trim();
-            if (caption) {
-                outputCaption.textContent = `Generated Caption: ${caption}`;
-            } else {
-                outputCaption.textContent = 'Please enter a caption.';
-            }
-        });
+        function generateCaption() {
+            const fileInput = document.getElementById('uploadInput');
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('image', file);
+
+            fetch('/generate-caption', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('caption').innerText = data.caption;
+                const audio = new Audio('data:audio/mp3;base64,' + data.audio);
+                audio.play();
+            })
+            .catch(error => console.error('Error:', error));
+        }
     </script>
 </body>
 </html>
