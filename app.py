@@ -4,7 +4,7 @@ import cv2
 import torch
 from transformers import VisionEncoderDecoderModel, ViTFeatureExtractor, AutoTokenizer
 from PIL import Image
-import numpy as np
+import numpy as np 
 from gtts import gTTS
 
 app = Flask(__name__)
