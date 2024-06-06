@@ -1,15 +1,17 @@
-import os
 from flask import Flask, request, render_template, send_from_directory
+import os
+import cv2
+import torch
 from transformers import VisionEncoderDecoderModel, ViTFeatureExtractor, AutoTokenizer
 from PIL import Image
-import torch
-import cv2
+import numpy as np
 from gtts import gTTS
+from flask import jsonify
 
 app = Flask(__name__)
-UPLOAD_FOLDER = 'static/uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER'] = 'static/uploads/'
 
+# Load pre-trained model, feature extractor, and tokenizer
 model = VisionEncoderDecoderModel.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
 feature_extractor = ViTFeatureExtractor.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
 tokenizer = AutoTokenizer.from_pretrained("nlpconnect/vit-gpt2-image-captioning")
@@ -37,40 +39,42 @@ def preprocess_image(image_path):
     return pil_image
 
 def predict_step(image_paths):
-    images = [preprocess_image(path) for path in image_paths if preprocess_image(path) is not None]
+    images = []
+    for image_path in image_paths:
+        preprocessed_image = preprocess_image(image_path)
+        if preprocessed_image:
+            images.append(preprocessed_image)
+        else:
+            continue
     if not images:
         return []
-
     pixel_values = feature_extractor(images=images, return_tensors="pt").pixel_values
     pixel_values = pixel_values.to(device)
-
     with torch.no_grad():
         output_ids = model.generate(pixel_values, **gen_kwargs)
-
     preds = tokenizer.batch_decode(output_ids, skip_special_tokens=True)
-    return [pred.strip() for pred in preds]
+    preds = [pred.strip() for pred in preds]
+    return preds
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         if 'file' not in request.files:
-            return "No file part"
+            return 'No file part'
         file = request.files['file']
         if file.filename == '':
-            return "No selected file"
+            return 'No selected file'
         if file:
             filename = file.filename
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
-            predictions = predict_step([filepath])
-            if predictions:
-                caption = predictions[0]
+            captions = predict_step([filepath])
+            if captions:
+                caption = captions[0]
                 tts = gTTS(caption, lang='en')
                 tts.save(os.path.join(app.config['UPLOAD_FOLDER'], 'caption.mp3'))
-                return render_template('index.html', image_url=filepath, caption=caption, audio_url='static/uploads/caption.mp3')
+                return render_template('index.html', caption=caption, image_url=filepath, audio_url='uploads/caption.mp3')
     return render_template('index.html')
 
 if __name__ == '__main__':
-    if not os.path.exists(UPLOAD_FOLDER):
-        os.makedirs(UPLOAD_FOLDER)
     app.run(debug=True)
