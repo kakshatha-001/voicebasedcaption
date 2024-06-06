@@ -1,25 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
     <title>Image Captioning</title>
-</head>
-<body>
-    <h1>Upload an Image to Get a Caption</h1>
-    <form method="post" enctype="multipart/form-data">
-        <input type="file" name="file">
-        <input type="submit" value="Upload">
+  </head>
+  <body>
+    <h1>Upload an Image</h1>
+    <form method="POST" enctype="multipart/form-data">
+      <input type="file" name="file">
+      <input type="submit" value="Upload">
     </form>
-
-    {% if image_url %}
-        <h2>Caption:</h2>
-        <p>{{ caption }}</p>
-        <img src="{{ image_url }}" alt="Uploaded Image">
-        <audio controls>
-            <source src="{{ audio_url }}" type="audio/mpeg">
-            Your browser does not support the audio element.
-        </audio>
-    {% endif %}
-</body>
+  </body>
 </html>
